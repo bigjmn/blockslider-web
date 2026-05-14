@@ -1,0 +1,31 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - heading "Rush Push Puzzle Demo" [level=1] [ref=e6]
+        - paragraph [ref=e7]: 8×8 board. Click a car to move it in its fixed arrow direction. Cars can push perpendicular cars broadside, and can push the 1-square ball if the next square is empty. Push the ball onto the goal to win.
+      - button "Reset" [ref=e8]
+    - generic [ref=e9]:
+      - generic [ref=e10]:
+        - generic [ref=e62]: ◎
+        - button "→" [ref=e76]:
+          - generic [ref=e77]: →
+        - button "↑" [ref=e78]:
+          - generic [ref=e79]: ↑
+        - button "↓" [ref=e80]:
+          - generic [ref=e81]: ↓
+        - button "←" [ref=e82]:
+          - generic [ref=e83]: ←
+        - button "↑" [ref=e84]:
+          - generic [ref=e85]: ↑
+        - button "●" [ref=e86]:
+          - generic [ref=e87]: ●
+      - generic [ref=e88]:
+        - generic [ref=e89]:
+          - generic [ref=e90]: Status
+          - paragraph [ref=e91]: Click a car to move it in its arrow direction. Push the ball into the goal.
+        - generic [ref=e92]:
+          - paragraph [ref=e93]: Game state shape
+          - generic [ref=e94]: "{ ball: { x: number, y: number }, goal: { x: number, y: number }, initialPieces: CarPiece[] }"
+  - button "Open Next.js Dev Tools" [ref=e100] [cursor=pointer]:
+    - img [ref=e101]

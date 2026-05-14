@@ -1,0 +1,436 @@
+{
+    "tutorials": [
+        {
+  "ball": {
+    "x": 6,
+    "y": 4
+  },
+  "goal": {
+    "x": 6,
+    "y": 6
+  },
+  "initialPieces": [
+    {
+      "id": "car-1778629579070",
+      "type": "car",
+      "x": 2,
+      "y": 1,
+      "orientation": "H",
+      "direction": "right",
+      "color": "bg-red-500",
+      "label": "R"
+    },
+    {
+      "id": "car-1778629585452",
+      "type": "car",
+      "x": 5,
+      "y": 1,
+      "orientation": "V",
+      "direction": "down",
+      "color": "bg-blue-500",
+      "label": "B"
+    }
+  ]
+},
+{
+  "ball": {
+    "x": 2,
+    "y": 0
+  },
+  "goal": {
+    "x": 5,
+    "y": 0
+  },
+  "initialPieces": [
+    {
+      "id": "car-1778624640787",
+      "type": "car",
+      "x": 0,
+      "y": 1,
+      "orientation": "H",
+      "direction": "right",
+      "color": "bg-red-500",
+      "label": "R"
+    },
+    {
+      "id": "car-1778624664301",
+      "type": "car",
+      "x": 3,
+      "y": 0,
+      "orientation": "H",
+      "direction": "right",
+      "color": "bg-blue-500",
+      "label": "B"
+    },
+    {
+      "id": "car-1778624720395",
+      "type": "car",
+      "x": 0,
+      "y": 2,
+      "orientation": "V",
+      "direction": "up",
+      "color": "bg-emerald-500",
+      "label": "G"
+    }
+  ]
+}
+
+    ],
+    "puzzles":[
+  {"ball": {
+    "x": 4,
+    "y": 2
+  },
+  "goal": {
+    "x": 7,
+    "y": 1
+  },
+  "initialPieces": [
+    {
+      "id": "car-1778621094403",
+      "type": "car",
+      "x": 3,
+      "y": 6,
+      "orientation": "H",
+      "direction": "right",
+      "color": "bg-red-500",
+      "label": "R"
+    },
+    {
+      "id": "car-1778621113257",
+      "type": "car",
+      "x": 0,
+      "y": 5,
+      "orientation": "H",
+      "direction": "right",
+      "color": "bg-blue-500",
+      "label": "B"
+    },
+    {
+      "id": "car-1778621225249",
+      "type": "car",
+      "x": 2,
+      "y": 4,
+      "orientation": "V",
+      "direction": "up",
+      "color": "bg-emerald-500",
+      "label": "G"
+    },
+    {
+      "id": "car-1778621253403",
+      "type": "car",
+      "x": 3,
+      "y": 3,
+      "orientation": "V",
+      "direction": "down",
+      "color": "bg-purple-500",
+      "label": "P"
+    },
+    {
+      "id": "car-1778621264100",
+      "type": "car",
+      "x": 3,
+      "y": 5,
+      "orientation": "H",
+      "direction": "left",
+      "color": "bg-amber-500",
+      "label": "A"
+    },
+    {
+      "id": "car-1778621286499",
+      "type": "car",
+      "x": 5,
+      "y": 1,
+      "orientation": "V",
+      "direction": "down",
+      "color": "bg-pink-500",
+      "label": "K"
+    },
+    {
+      "id": "car-1778621307916",
+      "type": "car",
+      "x": 6,
+      "y": 6,
+      "orientation": "H",
+      "direction": "left",
+      "color": "bg-cyan-500",
+      "label": "C"
+    },
+    {
+      "id": "car-1778621705745",
+      "type": "car",
+      "x": 1,
+      "y": 2,
+      "orientation": "H",
+      "direction": "right",
+      "color": "bg-orange-500",
+      "label": "O"
+    }
+  ]},
+  {
+  "ball": {
+    "x": 4,
+    "y": 1
+  },
+  "goal": {
+    "x": 2,
+    "y": 1
+  },
+  "initialPieces": [
+    {
+      "id": "car-1778622024340",
+      "type": "car",
+      "x": 2,
+      "y": 6,
+      "orientation": "H",
+      "direction": "right",
+      "color": "bg-red-500",
+      "label": "R"
+    },
+    {
+      "id": "car-1778622031157",
+      "type": "car",
+      "x": 2,
+      "y": 4,
+      "orientation": "V",
+      "direction": "down",
+      "color": "bg-blue-500",
+      "label": "B"
+    },
+    {
+      "id": "car-1778622037956",
+      "type": "car",
+      "x": 3,
+      "y": 0,
+      "orientation": "V",
+      "direction": "up",
+      "color": "bg-emerald-500",
+      "label": "G"
+    },
+    {
+      "id": "car-1778622056924",
+      "type": "car",
+      "x": 4,
+      "y": 6,
+      "orientation": "V",
+      "direction": "up",
+      "color": "bg-purple-500",
+      "label": "P"
+    },
+    {
+      "id": "car-1778622072607",
+      "type": "car",
+      "x": 7,
+      "y": 6,
+      "orientation": "V",
+      "direction": "up",
+      "color": "bg-amber-500",
+      "label": "A"
+    },
+    {
+      "id": "car-1778622082881",
+      "type": "car",
+      "x": 6,
+      "y": 5,
+      "orientation": "H",
+      "direction": "left",
+      "color": "bg-pink-500",
+      "label": "K"
+    },
+    {
+      "id": "car-1778622095407",
+      "type": "car",
+      "x": 6,
+      "y": 4,
+      "orientation": "H",
+      "direction": "left",
+      "color": "bg-cyan-500",
+      "label": "C"
+    }
+  ]
+},
+{
+  "ball": {
+    "x": 4,
+    "y": 2
+  },
+  "goal": {
+    "x": 2,
+    "y": 3
+  },
+  "initialPieces": [
+    {
+      "id": "car-1778622394595",
+      "type": "car",
+      "x": 0,
+      "y": 4,
+      "orientation": "V",
+      "direction": "up",
+      "color": "bg-red-500",
+      "label": "R"
+    },
+    {
+      "id": "car-1778622405394",
+      "type": "car",
+      "x": 1,
+      "y": 2,
+      "orientation": "H",
+      "direction": "right",
+      "color": "bg-blue-500",
+      "label": "B"
+    },
+    {
+      "id": "car-1778622422754",
+      "type": "car",
+      "x": 1,
+      "y": 0,
+      "orientation": "V",
+      "direction": "down",
+      "color": "bg-emerald-500",
+      "label": "G"
+    },
+    {
+      "id": "car-1778622429299",
+      "type": "car",
+      "x": 2,
+      "y": 5,
+      "orientation": "H",
+      "direction": "right",
+      "color": "bg-purple-500",
+      "label": "P"
+    },
+    {
+      "id": "car-1778622438544",
+      "type": "car",
+      "x": 4,
+      "y": 6,
+      "orientation": "V",
+      "direction": "up",
+      "color": "bg-amber-500",
+      "label": "A"
+    },
+    {
+      "id": "car-1778622450861",
+      "type": "car",
+      "x": 5,
+      "y": 0,
+      "orientation": "V",
+      "direction": "down",
+      "color": "bg-pink-500",
+      "label": "K"
+    },
+    {
+      "id": "car-1778622460278",
+      "type": "car",
+      "x": 6,
+      "y": 4,
+      "orientation": "H",
+      "direction": "left",
+      "color": "bg-cyan-500",
+      "label": "C"
+    }
+  ]
+},
+{
+  "ball": {
+    "x": 5,
+    "y": 4
+  },
+  "goal": {
+    "x": 0,
+    "y": 4
+  },
+  "initialPieces": [
+    {
+      "id": "car-1778623709912",
+      "type": "car",
+      "x": 1,
+      "y": 6,
+      "orientation": "H",
+      "direction": "left",
+      "color": "bg-red-500",
+      "label": "R"
+    },
+    {
+      "id": "car-1778623723535",
+      "type": "car",
+      "x": 2,
+      "y": 4,
+      "orientation": "H",
+      "direction": "right",
+      "color": "bg-blue-500",
+      "label": "B"
+    },
+    {
+      "id": "car-1778623737668",
+      "type": "car",
+      "x": 2,
+      "y": 3,
+      "orientation": "H",
+      "direction": "right",
+      "color": "bg-emerald-500",
+      "label": "G"
+    },
+    {
+      "id": "car-1778623742368",
+      "type": "car",
+      "x": 4,
+      "y": 6,
+      "orientation": "V",
+      "direction": "up",
+      "color": "bg-purple-500",
+      "label": "P"
+    },
+    {
+      "id": "car-1778623753676",
+      "type": "car",
+      "x": 4,
+      "y": 4,
+      "orientation": "V",
+      "direction": "up",
+      "color": "bg-amber-500",
+      "label": "A"
+    },
+    {
+      "id": "car-1778623762785",
+      "type": "car",
+      "x": 4,
+      "y": 2,
+      "orientation": "V",
+      "direction": "down",
+      "color": "bg-pink-500",
+      "label": "K"
+    },
+    {
+      "id": "car-1778623775344",
+      "type": "car",
+      "x": 4,
+      "y": 0,
+      "orientation": "V",
+      "direction": "down",
+      "color": "bg-cyan-500",
+      "label": "C"
+    },
+    {
+      "id": "car-1778623780756",
+      "type": "car",
+      "x": 6,
+      "y": 5,
+      "orientation": "H",
+      "direction": "left",
+      "color": "bg-orange-500",
+      "label": "O"
+    },
+    {
+      "id": "car-1778623791352",
+      "type": "car",
+      "x": 6,
+      "y": 4,
+      "orientation": "H",
+      "direction": "left",
+      "color": "bg-red-500",
+      "label": "R"
+    }
+  ]
+}
+]}

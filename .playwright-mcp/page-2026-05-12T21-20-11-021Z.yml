@@ -1,0 +1,18 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - heading "Puzzle Maker" [level=1] [ref=e6]
+      - paragraph [ref=e7]: Build a Rush Push puzzle, then preview or export it.
+    - generic [ref=e8]:
+      - button "Copy state" [disabled] [ref=e9]
+      - button "Preview →" [disabled] [ref=e10]
+  - generic [ref=e12]:
+    - paragraph [ref=e13]: Add pieces
+    - button "+ Car" [ref=e14]
+    - button "+ Ball" [ref=e15]
+    - button "+ Goal ◎" [ref=e16]
+    - button "Reset board" [ref=e18]
+    - generic [ref=e20]:
+      - paragraph [ref=e21]: Click a car to cycle its direction.
+      - paragraph [ref=e22]: Drag any piece to reposition it.
+      - paragraph [ref=e23]: Hover a piece to delete it.

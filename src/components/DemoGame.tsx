@@ -39,6 +39,7 @@ export type TutorialStep = {
 export type PuzzleProps = {
   gameState: GameState
   tutorial?: TutorialStep[] | null
+  onComplete?: () => void
 }
 
 // ─── Portal ───────────────────────────────────────────────────────────────────
@@ -87,7 +88,7 @@ function PortalCell({ sucking }: { sucking: boolean }) {
 
 // ─── Main puzzle component ────────────────────────────────────────────────────
 
-export function RushPushPuzzle({ gameState, tutorial = null }: PuzzleProps) {
+export function RushPushPuzzle({ gameState, tutorial = null, onComplete }: PuzzleProps) {
   const [pieces, setPieces] = useState<Piece[]>(() => makeInitialPieces(gameState))
   const [history, setHistory] = useState<{ pieces: Piece[]; tutorialStep: number }[]>([])
   const [isComplete, setIsComplete] = useState(false)
@@ -231,7 +232,10 @@ export function RushPushPuzzle({ gameState, tutorial = null }: PuzzleProps) {
                 }
                 onAnimationComplete={() => {
                   // Only advance to complete after the suck-in finishes
-                  if (ballInGoalRef.current) setIsComplete(true)
+                  if (ballInGoalRef.current) {
+                    setIsComplete(true)
+                    onComplete?.()
+                  }
                 }}
                 onClick={() => handlePieceClick(piece.id)}
                 className={`absolute ${isBall ? "" : piece.color} text-white ${

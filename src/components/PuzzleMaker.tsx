@@ -4,6 +4,9 @@ import React, { useCallback, useMemo, useRef, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { RushPushPuzzle } from "./DemoGame"
 import { CELL, GRID_SIZE, key, inBoundsCell, cellsFor, type GameState, type Direction, type Orientation } from "@/lib/puzzle-engine"
+import { useAuth } from "@/contexts/AuthContext"
+import { encodeGameState } from "@/lib/encode"
+import { savePuzzle } from "@/lib/firebase-db"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -128,11 +131,19 @@ export function PuzzleMaker() {
   const [pieces, setPieces] = useState<MakerPiece[]>([])
   const [drag, setDrag] = useState<DragState | null>(null)
   const [mode, setMode] = useState<"edit" | "preview">("edit")
-  const [copied, setCopied] = useState(false)
   const [statusMsg, setStatusMsg] = useState<string | null>(null)
 
   const boardRef = useRef<HTMLDivElement>(null)
   const colorIndexRef = useRef(0)
+
+  const { user } = useAuth()
+  const adminUid = process.env.NEXT_PUBLIC_ADMIN_UID
+  const isAdmin = !!adminUid && user?.uid === adminUid
+
+  const [saveDate, setSaveDate] = useState(() => new Date().toISOString().slice(0, 10))
+  const [saving, setSaving] = useState(false)
+  const [challengeCopied, setChallengeCopied] = useState(false)
+  const [uidCopied, setUidCopied] = useState(false)
 
   // Compute snap reactively so it's available in render
   const dragSnap = useMemo<SnapResult | null>(
@@ -204,12 +215,36 @@ export function PuzzleMaker() {
     setMode("edit")
   }
 
-  // ── Copy state ───────────────────────────────────────────────────────────
-  function copyState() {
+  // ── Challenge link ───────────────────────────────────────────────────────
+  function copyChallenge() {
     if (!gameState) return
-    navigator.clipboard.writeText(JSON.stringify(gameState, null, 2))
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    const encoded = encodeGameState(gameState)
+    const url = `${window.location.origin}/challenge/${encoded}`
+    navigator.clipboard.writeText(url)
+    setChallengeCopied(true)
+    setTimeout(() => setChallengeCopied(false), 2000)
+  }
+
+  async function handleSave() {
+    if (!gameState || !isAdmin) return
+    setSaving(true)
+    try {
+      const encoded = encodeGameState(gameState)
+      await savePuzzle(saveDate, gameState, encoded)
+      flash(`Saved as ${saveDate}!`)
+    } catch (e) {
+      flash("Save failed.")
+      console.error(e)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  function copyUid() {
+    if (!user) return
+    navigator.clipboard.writeText(user.uid)
+    setUidCopied(true)
+    setTimeout(() => setUidCopied(false), 2000)
   }
 
   // ── Pointer drag handlers ────────────────────────────────────────────────
@@ -326,21 +361,30 @@ export function PuzzleMaker() {
             <h1 className="text-2xl font-bold tracking-tight">Puzzle Maker</h1>
             <p className="text-sm text-zinc-500 mt-0.5">Build a Rush Push puzzle, then preview or export it.</p>
           </div>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={copyState}
-              disabled={!gameState}
-              className="rounded-xl border bg-white px-4 py-2 font-semibold shadow-sm text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:enabled:bg-zinc-50 transition-colors"
-            >
-              {copied ? "Copied!" : "Copy state"}
+          <div className="flex gap-2 flex-wrap">
+            {!adminUid && user && (
+              <button type="button" onClick={copyUid}
+                className="rounded-xl border bg-white px-4 py-2 font-semibold shadow-sm text-sm hover:bg-zinc-50 transition-colors">
+                {uidCopied ? "Copied!" : "Copy my UID"}
+              </button>
+            )}
+            <button type="button" onClick={copyChallenge} disabled={!gameState}
+              className="rounded-xl border bg-white px-4 py-2 font-semibold shadow-sm text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:enabled:bg-zinc-50 transition-colors">
+              {challengeCopied ? "Link copied!" : "Create challenge link"}
             </button>
-            <button
-              type="button"
-              onClick={() => setMode("preview")}
-              disabled={!gameState}
-              className="rounded-xl bg-zinc-900 text-white px-4 py-2 font-semibold shadow-sm text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:enabled:bg-zinc-700 transition-colors"
-            >
+            {isAdmin && (
+              <>
+                <input type="date" value={saveDate} onChange={(e) => setSaveDate(e.target.value)}
+                  aria-label="Puzzle date"
+                  className="rounded-xl border px-3 py-2 text-sm font-semibold bg-white shadow-sm" />
+                <button type="button" onClick={handleSave} disabled={!gameState || saving}
+                  className="rounded-xl bg-zinc-900 text-white px-4 py-2 font-semibold shadow-sm text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:enabled:bg-zinc-700 transition-colors">
+                  {saving ? "Saving…" : "Save puzzle"}
+                </button>
+              </>
+            )}
+            <button type="button" onClick={() => setMode("preview")} disabled={!gameState}
+              className="rounded-xl bg-zinc-900 text-white px-4 py-2 font-semibold shadow-sm text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:enabled:bg-zinc-700 transition-colors">
               Preview →
             </button>
           </div>

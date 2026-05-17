@@ -1,0 +1,13 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - heading "Block Slider" [level=1] [ref=e5]
+      - paragraph [ref=e6]: A new puzzle every day
+    - generic [ref=e8]:
+      - link "Archive" [ref=e9] [cursor=pointer]:
+        - /url: /archive
+      - link "Puzzle Maker" [ref=e10] [cursor=pointer]:
+        - /url: /puzzlemaker
+  - button "Open Next.js Dev Tools" [ref=e16] [cursor=pointer]:
+    - img [ref=e17]
+  - alert [ref=e20]

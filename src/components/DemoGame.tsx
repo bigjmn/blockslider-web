@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useMemo, useRef, useState } from "react"
+import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   GRID_SIZE,
@@ -16,6 +17,12 @@ import {
   findPieceAt,
   movePiece,
 } from "@/lib/puzzle-engine"
+import { MoveTree, type TreeNodeData } from "./MoveTree"
+import type { TreeResult } from "@/lib/firebase-db"
+
+function serializePieces(pieces: Piece[]): string {
+  return pieces.map((p) => `${p.id}:${p.x},${p.y}`).sort().join("|")
+}
 
 import { tutorialA } from "@/lib/tutorials"
 
@@ -39,7 +46,7 @@ export type TutorialStep = {
 export type PuzzleProps = {
   gameState: GameState
   tutorial?: TutorialStep[] | null
-  onComplete?: () => void
+  onComplete?: (tree: TreeResult) => void
 }
 
 // ─── Portal ───────────────────────────────────────────────────────────────────
@@ -89,10 +96,36 @@ function PortalCell({ sucking }: { sucking: boolean }) {
 // ─── Main puzzle component ────────────────────────────────────────────────────
 
 export function RushPushPuzzle({ gameState, tutorial = null, onComplete }: PuzzleProps) {
+  const router = useRouter()
   const [pieces, setPieces] = useState<Piece[]>(() => makeInitialPieces(gameState))
   const [history, setHistory] = useState<{ pieces: Piece[]; tutorialStep: number }[]>([])
   const [isComplete, setIsComplete] = useState(false)
   const [tutorialStep, setTutorialStep] = useState(0)
+
+  // ── Move tree ──────────────────────────────────────────────────────────────
+  const nodeIdCounter = useRef(0)
+  const initialKey = serializePieces(makeInitialPieces(gameState))
+  const [treeNodes, setTreeNodes] = useState<Map<string, TreeNodeData>>(
+    () => new Map([["root", { id: "root", parentId: null, depth: 0, stateKey: initialKey }]])
+  )
+  const [treeChildren, setTreeChildren] = useState<Map<string, string[]>>(
+    () => new Map([["root", []]])
+  )
+  const [currentNodeId, setCurrentNodeId] = useState("root")
+  const [solutionNodeId, setSolutionNodeId] = useState<string | null>(null)
+
+  const { solutionPath, solutionMoves } = useMemo(() => {
+    if (!solutionNodeId) return { solutionPath: new Set<string>(), solutionMoves: 0 }
+    const path = new Set<string>()
+    let cur: string | null = solutionNodeId
+    while (cur) {
+      path.add(cur)
+      cur = treeNodes.get(cur)?.parentId ?? null
+    }
+    return { solutionPath: path, solutionMoves: treeNodes.get(solutionNodeId)?.depth ?? 0 }
+  }, [solutionNodeId, treeNodes])
+
+  const deadEnds = treeNodes.size - solutionPath.size
 
   const activeTutorial =
     tutorial && tutorialStep < tutorial.length ? tutorial[tutorialStep] : null
@@ -102,9 +135,15 @@ export function RushPushPuzzle({ gameState, tutorial = null, onComplete }: Puzzl
     () => pieces.some((p) => p.type === "ball" && p.inGoal),
     [pieces]
   )
-  // Ref so onAnimationComplete can read the latest value without a stale closure
+  // Refs so onAnimationComplete can read the latest values without stale closures
   const ballInGoalRef = useRef(ballInGoal)
   ballInGoalRef.current = ballInGoal
+  const treeNodesRef = useRef(treeNodes)
+  treeNodesRef.current = treeNodes
+  const solutionNodeIdRef = useRef(solutionNodeId)
+  solutionNodeIdRef.current = solutionNodeId
+  const onCompleteRef = useRef(onComplete)
+  onCompleteRef.current = onComplete
 
   const suckInTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -125,6 +164,29 @@ export function RushPushPuzzle({ gameState, tutorial = null, onComplete }: Puzzl
     if (!moved) return
 
     setHistory((h) => [...h, { pieces, tutorialStep }])
+
+    // ── Tree update ──────────────────────────────────────────────────────────
+    const newKey = serializePieces(result.pieces)
+    const existingChild = (treeChildren.get(currentNodeId) ?? []).find(
+      (cid) => treeNodes.get(cid)?.stateKey === newKey
+    )
+    let nextNodeId: string
+    if (existingChild) {
+      nextNodeId = existingChild
+    } else {
+      nextNodeId = `n${nodeIdCounter.current++}`
+      const depth = (treeNodes.get(currentNodeId)?.depth ?? 0) + 1
+      setTreeNodes((prev) => new Map([...prev, [nextNodeId, { id: nextNodeId, parentId: currentNodeId, depth, stateKey: newKey }]]))
+      setTreeChildren((prev) => {
+        const next = new Map(prev)
+        next.set(currentNodeId, [...(next.get(currentNodeId) ?? []), nextNodeId])
+        next.set(nextNodeId, [])
+        return next
+      })
+    }
+    setCurrentNodeId(nextNodeId)
+    if (result.completed) setSolutionNodeId(nextNodeId)
+    // ────────────────────────────────────────────────────────────────────────
 
     if (result.completed) {
       // Move the ball to the goal position but keep inGoal: false so the layout
@@ -149,6 +211,8 @@ export function RushPushPuzzle({ gameState, tutorial = null, onComplete }: Puzzl
     setHistory((h) => h.slice(0, -1))
     setPieces(prev.pieces)
     setTutorialStep(prev.tutorialStep)
+    const parentId = treeNodes.get(currentNodeId)?.parentId
+    if (parentId) setCurrentNodeId(parentId)
   }
 
   function reset() {
@@ -157,6 +221,7 @@ export function RushPushPuzzle({ gameState, tutorial = null, onComplete }: Puzzl
     setHistory([])
     setIsComplete(false)
     setTutorialStep(0)
+    setCurrentNodeId("root")
   }
 
   const boardPx = GRID_SIZE * CELL
@@ -234,7 +299,19 @@ export function RushPushPuzzle({ gameState, tutorial = null, onComplete }: Puzzl
                   // Only advance to complete after the suck-in finishes
                   if (ballInGoalRef.current) {
                     setIsComplete(true)
-                    onComplete?.()
+                    const solId = solutionNodeIdRef.current
+                    if (solId) {
+                      const tree: TreeResult = {
+                        nodes: Object.fromEntries(
+                          Array.from(treeNodesRef.current.entries()).map(([id, n]) => [
+                            id,
+                            { parentId: n.parentId, depth: n.depth },
+                          ])
+                        ),
+                        solutionId: solId,
+                      }
+                      onCompleteRef.current?.(tree)
+                    }
                   }
                 }}
                 onClick={() => handlePieceClick(piece.id)}
@@ -323,29 +400,70 @@ export function RushPushPuzzle({ gameState, tutorial = null, onComplete }: Puzzl
 
       {/* Completion modal — shown only after ball animation finishes */}
       <AnimatePresence>
-        {isComplete && (
+        {isComplete && solutionNodeId && (
           <motion.div
-            className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50"
+            className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
             <motion.div
-              initial={{ scale: 0.85, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: "spring", stiffness: 340, damping: 26 }}
-              className="w-full max-w-xs rounded-3xl bg-slate-800 border border-slate-600 shadow-2xl p-6 text-center text-white"
+              initial={{ scale: 0.88, opacity: 0, y: 12 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              transition={{ type: "spring", stiffness: 360, damping: 28 }}
+              className="w-full max-w-sm rounded-2xl overflow-hidden text-white bg-[#0a0f1a] border border-indigo-500/25 shadow-[0_0_60px_rgba(99,102,241,0.12),0_25px_50px_rgba(0,0,0,0.7)]"
             >
-              <div className="text-4xl mb-3">🎉</div>
-              <h2 className="text-2xl font-black mb-2">Puzzle complete!</h2>
-              <p className="text-slate-400 mb-5 text-sm">The ball reached the portal.</p>
-              <button
-                type="button"
-                onClick={reset}
-                className="rounded-xl bg-white text-slate-900 px-5 py-3 font-semibold hover:bg-slate-100 active:scale-95"
-              >
-                Play again
-              </button>
+              {/* Header */}
+              <div className="px-5 pt-5 pb-4 border-b border-white/[0.06]">
+                <p className="text-xs font-mono tracking-widest mb-1 text-violet-400">SOLVED</p>
+                <h2 className="text-xl font-black tracking-tight">Puzzle complete</h2>
+              </div>
+
+              {/* Tree */}
+              <div className="px-4 py-5 bg-black/30">
+                <MoveTree
+                  nodes={treeNodes}
+                  childrenMap={treeChildren}
+                  solutionId={solutionNodeId}
+                  solutionPath={solutionPath}
+                />
+              </div>
+
+              {/* Stats */}
+              <div className="px-5 py-4 flex items-end gap-6 border-t border-white/[0.06]">
+                <div>
+                  <div className="text-3xl font-black tabular-nums">
+                    {solutionMoves}
+                  </div>
+                  <div className="text-xs font-mono mt-0.5 text-slate-400/70">
+                    {solutionMoves === 1 ? "move" : "moves"}
+                  </div>
+                </div>
+                {deadEnds > 0 && (
+                  <div>
+                    <div className="text-3xl font-black tabular-nums text-slate-500/80">
+                      {deadEnds}
+                    </div>
+                    <div className="text-xs font-mono mt-0.5 text-slate-500/50">
+                      {deadEnds === 1 ? "dead end" : "dead ends"}
+                    </div>
+                  </div>
+                )}
+                {deadEnds === 0 && (
+                  <p className="text-xs font-mono pb-1 text-cyan-400/70">no backtracking</p>
+                )}
+              </div>
+
+              {/* Action */}
+              <div className="px-5 pb-5">
+                <button
+                  type="button"
+                  onClick={() => router.back()}
+                  className="w-full rounded-xl py-3 font-semibold text-sm bg-violet-400/15 text-violet-300 border border-violet-400/25 hover:bg-violet-400/25 transition-all active:scale-95"
+                >
+                  ← Back
+                </button>
+              </div>
             </motion.div>
           </motion.div>
         )}

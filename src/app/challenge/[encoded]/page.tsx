@@ -3,7 +3,7 @@ import { use } from "react"
 import { RushPushPuzzle } from "@/components/DemoGame"
 import { useAuth } from "@/contexts/AuthContext"
 import { decodeGameState } from "@/lib/encode"
-import { markSolved } from "@/lib/firebase-db"
+import { markSolved, type TreeResult } from "@/lib/firebase-db"
 
 export default function ChallengePage({ params }: { params: Promise<{ encoded: string }> }) {
   const { encoded } = use(params)
@@ -16,9 +16,9 @@ export default function ChallengePage({ params }: { params: Promise<{ encoded: s
     return <p className="text-white p-8">Invalid challenge link.</p>
   }
 
-  function handleComplete() {
+  function handleComplete(tree: TreeResult) {
     if (!user) return
-    markSolved(user.uid, `challenge:${encoded}`).catch(console.error)
+    markSolved(user.uid, `challenge:${encoded}`, tree).catch(console.error)
   }
 
   return <RushPushPuzzle gameState={gameState} onComplete={handleComplete} />

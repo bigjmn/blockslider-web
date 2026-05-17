@@ -24,3 +24,31 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.card-gradient {
+  background: linear-gradient(160deg, #0d1625 0%, #07101c 100%);
+}
+.solved-overlay {
+  background: rgba(10, 15, 26, 0.90);
+}
+.solved-overlay-opaque {
+  background: rgba(10, 15, 26, 0.97);
+}
+
+@keyframes sol-edge-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes dead-edge-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.sol-edge {
+  opacity: 0;
+  animation: sol-edge-in 0.15s ease-out var(--delay, 0s) forwards;
+}
+.dead-edge {
+  opacity: 0;
+  animation: dead-edge-in 0.2s ease-out var(--delay, 0s) forwards;
+}

@@ -227,7 +227,7 @@ export function RushPushPuzzle({ gameState, tutorial = null, onComplete }: Puzzl
   const boardPx = GRID_SIZE * CELL
 
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-start px-2 pt-4 pb-8 sm:p-8">
+    <div className="h-screen overflow-hidden bg-slate-900 flex flex-col items-center justify-start px-2 pt-4 sm:p-8">
       <div className="flex flex-col gap-3" style={{ width: boardPx }}>
 
         {/* Header */}

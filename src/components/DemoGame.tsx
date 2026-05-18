@@ -146,6 +146,7 @@ export function RushPushPuzzle({ gameState, tutorial = null, onComplete }: Puzzl
   onCompleteRef.current = onComplete
 
   const suckInTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const moveTreeRef = useRef<HTMLDivElement>(null)
 
   const cellContents = useMemo(() => {
     const map = new Map<string, string>()
@@ -202,6 +203,37 @@ export function RushPushPuzzle({ gameState, tutorial = null, onComplete }: Puzzl
       setPieces(result.pieces)
       if (activeTutorial) setTutorialStep((s) => s + 1)
     }
+  }
+
+  async function shareMoveTree(container: HTMLDivElement | null) {
+    if (!container) return
+    const svg = container.querySelector("svg")
+    if (!svg) return
+    const size = 600
+    const svgClone = svg.cloneNode(true) as SVGSVGElement
+    svgClone.setAttribute("width", String(size))
+    svgClone.setAttribute("height", String(size))
+    const svgStr = new XMLSerializer().serializeToString(svgClone)
+    const url = URL.createObjectURL(new Blob([svgStr], { type: "image/svg+xml" }))
+    const img = new Image()
+    img.onload = () => {
+      const canvas = document.createElement("canvas")
+      canvas.width = size
+      canvas.height = size
+      const ctx = canvas.getContext("2d")!
+      ctx.fillStyle = "#0a0f1a"
+      ctx.fillRect(0, 0, size, size)
+      ctx.drawImage(img, 0, 0, size, size)
+      URL.revokeObjectURL(url)
+      canvas.toBlob(async (blob) => {
+        if (!blob) return
+        const file = new File([blob], "block-slider-movetree.png", { type: "image/png" })
+        if (navigator.canShare?.({ files: [file] })) {
+          await navigator.share({ files: [file], title: "Block Slider" }).catch(() => {})
+        }
+      }, "image/png")
+    }
+    img.src = url
   }
 
   function takeBack() {
@@ -420,7 +452,7 @@ export function RushPushPuzzle({ gameState, tutorial = null, onComplete }: Puzzl
               </div>
 
               {/* Tree */}
-              <div className="px-4 py-5 bg-black/30">
+              <div ref={moveTreeRef} className="px-4 py-5 bg-black/30">
                 <MoveTree
                   nodes={treeNodes}
                   childrenMap={treeChildren}
@@ -439,29 +471,31 @@ export function RushPushPuzzle({ gameState, tutorial = null, onComplete }: Puzzl
                     {solutionMoves === 1 ? "move" : "moves"}
                   </div>
                 </div>
-                {deadEnds > 0 && (
-                  <div>
-                    <div className="text-3xl font-black tabular-nums text-slate-500/80">
-                      {deadEnds}
-                    </div>
-                    <div className="text-xs font-mono mt-0.5 text-slate-500/50">
-                      {deadEnds === 1 ? "dead end" : "dead ends"}
-                    </div>
+                <div>
+                  <div className="text-3xl font-black tabular-nums text-slate-500/80">
+                    {deadEnds}
                   </div>
-                )}
-                {deadEnds === 0 && (
-                  <p className="text-xs font-mono pb-1 text-cyan-400/70">no backtracking</p>
-                )}
+                  <div className="text-xs font-mono mt-0.5 text-slate-500/50">
+                    {deadEnds === 1 ? "dead end" : "dead ends"}
+                  </div>
+                </div>
               </div>
 
               {/* Action */}
-              <div className="px-5 pb-5">
+              <div className="px-5 pb-5 flex gap-3">
                 <button
                   type="button"
                   onClick={() => router.back()}
-                  className="w-full rounded-xl py-3 font-semibold text-sm bg-violet-400/15 text-violet-300 border border-violet-400/25 hover:bg-violet-400/25 transition-all active:scale-95"
+                  className="flex-1 rounded-xl py-3 font-semibold text-sm bg-violet-400/15 text-violet-300 border border-violet-400/25 hover:bg-violet-400/25 transition-all active:scale-95"
                 >
                   ← Back
+                </button>
+                <button
+                  type="button"
+                  onClick={() => shareMoveTree(moveTreeRef.current)}
+                  className="flex-1 rounded-xl py-3 font-semibold text-sm bg-slate-700/50 text-slate-300 border border-slate-600/40 hover:bg-slate-700/80 transition-all active:scale-95"
+                >
+                  Share
                 </button>
               </div>
             </motion.div>
